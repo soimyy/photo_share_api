@@ -17,6 +17,7 @@ const typeDefs = `
         name: String
         avatar: String
         postedPhotos: [Photo!]!
+        inPhotos: [Photo!]!
     }
 
     # Photo
@@ -27,6 +28,7 @@ const typeDefs = `
         description: String
         category: PhotoCategory!
         postedBy: User!
+        taggedUsers: [User!]!
     }
 
     input PostPhotoInput {
@@ -85,24 +87,64 @@ var photos = [
         "githubUser": "sSchmidt",
     },
 ]
-
+var tags = [
+    {
+        "photoID": "1" ,
+        "userID": "gPlake",
+    },
+    {
+        "photoID": "2" ,
+        "userID": "sSchmidt",
+    },
+    {
+        "photoID": "2" ,
+        "userID": "mHattrup",
+    },
+    {
+        "photoID": "2" ,
+        "userID": "gPlake",
+    },
+]
 
 const resolvers = {
     Query : {
         totalPhotos: () => photos.length,
         allPhotos: () => photos,
     },
+
     Photo: {
         url: parent => `http://yoursite.com/img/${parent.id}.jpg`,
         postedBy: parent => {
             return users.find(u => u.githubLogin === parent.githubUser)
-        }
+        },
+        taggedUsers: parent => tags
+
+            // 対象の写真が関係しているタグの配列を返す
+            .filter(tag => tag.photoID === parent.id)
+
+            // タグの配列ユーザIDの配列に変換する
+            .map(tag => tag.userID)
+
+            // ユーザIDの配列をユーザオブジェクトの配列に変換する
+            .map(userID => users.find(u => u.githubLogin === userID))
     },
     User: {
         postedPhotos: parent => {
             return photos.filter(p => p.githubUser === parent.githubLogin)
-        }
+        },
+        inPhotos: parent => tags
+
+            // 対象のユーザが関係しているタグの配列を返す
+            .filter(tag => tag.userID === parent.id)
+
+            // タグの配列ユーザIDの配列に変換する
+            .map(tag => tag.photoID)
+
+            // 写真IDの配列を写真オブジェクトの配列に変換する
+            .map(userID => users.find(p => p.id === photoID))
     },
+
+
 
     Mutation : {
 
