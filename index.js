@@ -1,6 +1,11 @@
 const { ApolloServer } = require(`apollo-server`)
 
+// const serialize = value => new Date(value).toISOString()
+
 const typeDefs = `
+
+    # scalar
+    scalar DateTime
 
     # enum
     enum PhotoCategory {
@@ -29,6 +34,7 @@ const typeDefs = `
         category: PhotoCategory!
         postedBy: User!
         taggedUsers: [User!]!
+        created: DateTime!
     }
 
     input PostPhotoInput {
@@ -40,7 +46,7 @@ const typeDefs = `
     # return all photo
     type Query {
         totalPhotos: Int!
-        allPhotos: [Photo!]!
+        allPhotos(after: DateTime): [Photo!]!
     }
 
     # ミューテーション Photo型を返す
@@ -49,7 +55,6 @@ const typeDefs = `
     }
 `
 var _id = 0
-
 var users = [
     {
         "githubLogin": "mHattrup",
@@ -158,7 +163,6 @@ const resolvers = {
         }
     },
 }
-
 
 const server = new ApolloServer({
     typeDefs,
