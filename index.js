@@ -1,6 +1,6 @@
 const { ApolloServer } = require(`apollo-server`)
-
-// const serialize = value => new Date(value).toISOString()
+const { GraphQLScalarType } = require(`graphql`)
+var _id = 0
 
 const typeDefs = `
 
@@ -54,7 +54,6 @@ const typeDefs = `
         postPhoto(input: PostPhotoInput!): Photo!
     }
 `
-var _id = 0
 var users = [
     {
         "githubLogin": "mHattrup",
@@ -77,12 +76,14 @@ var photos = [
         "description": "The heart chute is one of my facorite chutes",
         "category": "ACTION",
         "githubUser": "gPlake",
+        "created": "3-28-1997",
     },
     {
         "id": "2",
         "name": "Enjoying the sunchine",
         "category": "SELFIE",
         "githubUser": "sSchmidt",
+        "created": "3-1-1998",
     },
     {
         "id": "3",
@@ -90,6 +91,7 @@ var photos = [
         "description": "25 ladps on gunbarrel today",
         "category": "LANDSCAPE",
         "githubUser": "sSchmidt",
+        "created": "3-19-2000",
     },
 ]
 var tags = [
@@ -111,10 +113,16 @@ var tags = [
     },
 ]
 
+const perseValue = value => new Date(value)
+
 const resolvers = {
     Query : {
         totalPhotos: () => photos.length,
+        // allPhotos: (parent, args) => {
+        //     args.after
+        // }
         allPhotos: () => photos,
+
     },
 
     Photo: {
@@ -149,14 +157,22 @@ const resolvers = {
             .map(userID => users.find(p => p.id === photoID))
     },
 
-
+    DateTime : 
+        new GraphQLScalarType({
+            name: `DateTime`,
+            description: `A valid date time value`,
+            parseValue: value => new Date(value),
+            serialize: value => new Date(value).toISOString(),
+            parseLiteral: ast => ast.value,
+    }),
 
     Mutation : {
 
         postPhoto(parent, args) {
             var newPhoto = {
                 id: _id++,
-                ...args.input
+                ...args.input,
+                created: new Date()
             }
             photos.push(newPhoto)
             return newPhoto
