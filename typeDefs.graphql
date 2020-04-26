@@ -1,0 +1,49 @@
+# scalar
+scalar DateTime
+
+# enum
+enum PhotoCategory {
+    SELFIE
+    PORTRAIT
+    ACTION
+    LANDSCAPE
+    GRAHIC
+}
+
+# User
+type User {
+    githubLogin: ID!
+    name: String
+    avatar: String
+    postedPhotos: [Photo!]!
+    inPhotos: [Photo!]!
+}
+
+# Photo
+type Photo {
+    id: ID!
+    url: String!
+    name: String!
+    description: String
+    category: PhotoCategory!
+    postedBy: User!
+    taggedUsers: [User!]!
+    created: DateTime!
+}
+
+input PostPhotoInput {
+    name: String!
+    category: PhotoCategory=PORTRAIT
+    description: String
+}
+
+# return all photo
+type Query {
+    totalPhotos: Int!
+    allPhotos(after: DateTime): [Photo!]!
+}
+
+# ミューテーション Photo型を返す
+type Mutation {
+    postPhoto(input: PostPhotoInput!): Photo!
+}
