@@ -64,11 +64,26 @@ const perseValue = value => new Date(value)
 
 const resolvers = {
     Query : {
-        totalPhotos: () => photos.length,
+        // totalPhotos: () => photos.length,
         // allPhotos: (parent, args) => {
         //     args.after
         // }
-        allPhotos: () => photos,
+        // allPhotos: () => photos,
+        totalPhotos: (parent, args, { db }) =>
+        db.collection(`photo`).estimatedDocumentCount(),
+
+        allPhotos: (parent, args, { db }) =>
+        db.collection(`photos`)
+        .find()
+        .toArray(),
+
+        totalUsers: (parent, args, { db }) =>
+        db.collection(`users`).estimatedDocumentCount(),
+
+        allUsers: (parent, args, { db }) =>
+        db.collection(`users`)
+        .find
+        .toArray()
 
     },
 
